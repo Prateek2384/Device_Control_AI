@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Control Panel with AI Chatbot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+       
+        h1, h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+       
+        .person-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+       
+        .person-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+       
+        .options-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+       
+        .options-btn:hover {
+            background-color: #2980b9;
+        }
+       
+        .options-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10;
+            width: 200px;
+        }
+       
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+       
+        .toggle-label {
+            margin-right: 10px;
+            font-weight: 500;
+        }
+       
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+       
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+       
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+       
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+       
+        input:checked + .slider {
+            background-color: #2ecc71;
+        }
+       
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+       
+        .chat-container {
+            margin-top: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+       
+        #chat-input {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+       
+        #send-btn {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+       
+        #send-btn:hover {
+            background-color: #2980b9;
+        }
+       
+        #chat-response {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            min-height: 50px;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+        }
+       
+        .loading {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+       
+        .error {
+            color: #e74c3c;
+            background-color: #fadbd8;
+        }
+       
+        .success {
+            color: #27ae60;
+            background-color: #d5f5e3;
+        }
+       
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+       
+        .status-on {
+            background-color: #2ecc71;
+        }
+       
+        .status-off {
+            background-color: #e74c3c;
+        }
+       
+        .api-key-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            border: 1px solid #d0e3ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Device Control Panel with AI Assistant</h1>
+   
+    
+   
+    <div id="people-list">
+        <div class="person-card" data-name="prateek">
+            <div>
+                <span class="status-indicator status-on" id="prateek-status"></span>
+                <span>Prateek</span>
+            </div>
+            <button class="options-btn">Options</button>
+            <div class="options-menu">
+                <div class="toggle-item">
+                    <span class="toggle-label">Camera</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="camera" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">Microphone</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="mic" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">Bluetooth</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="bluetooth" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">WiFi</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="wifi" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+       
+        <div class="person-card" data-name="vikram">
+            <div>
+                <span class="status-indicator status-on" id="vikram-status"></span>
+                <span>Vikram</span>
+            </div>
+            <button class="options-btn">Options</button>
+            <div class="options-menu">
+                <div class="toggle-item">
+                    <span class="toggle-label">Camera</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="camera" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">Microphone</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="mic" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">Bluetooth</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="bluetooth" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">WiFi</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="wifi" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+       
+        <div class="person-card" data-name="divya">
+            <div>
+                <span class="status-indicator status-on" id="divya-status"></span>
+                <span>Divya</span>
+            </div>
+            <button class="options-btn">Options</button>
+            <div class="options-menu">
+                <div class="toggle-item">
+                    <span class="toggle-label">Camera</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="camera" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">Microphone</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="mic" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">Bluetooth</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="bluetooth" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">WiFi</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" data-device="wifi" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <div class="chat-container">
+        <h2>AI Command Assistant</h2>
+        <p>Try commands here</p>
+        <div>
+            <input type="text" id="chat-input" placeholder="Type your command...">
+            <button id="send-btn">Send</button>
+        </div>
+        <div id="chat-response"></div>
+    </div>
+
+
+    <script>
+        const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+        const OPENROUTER_API_KEY = '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'; 
+        const MODEL_NAME = 'mistralai/mixtral-8x7b-instruct';
+       
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatResponse = document.getElementById('chat-response');
+        const peopleCards = document.querySelectorAll('.person-card');
+       
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            document.querySelectorAll('.options-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const menu = this.nextElementSibling;
+                    const isVisible = menu.style.display === 'block';
+                   
+                    document.querySelectorAll('.options-menu').forEach(m => {
+                        m.style.display = 'none';
+                    });
+                   
+                    menu.style.display = isVisible ? 'none' : 'block';
+                });
+            });
+           
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.options-menu').forEach(menu => {
+                    menu.style.display = 'none';
+                });
+            });
+           
+            document.querySelectorAll('.options-menu').forEach(menu => {
+                menu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+           
+            document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+                toggle.addEventListener('change', function() {
+                    const device = this.getAttribute('data-device');
+                    const personCard = this.closest('.person-card');
+                    const person = personCard.getAttribute('data-name');
+                    const isChecked = this.checked;
+                   
+                    updateDeviceStatus(person, device, isChecked);
+                    updateStatusIndicator(person);
+                });
+            });
+        });
+       
+        sendBtn.addEventListener('click', processCommand);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processCommand();
+            }
+        });
+       
+        async function processCommand() {
+    const command = chatInput.value.trim();
+    if (!command) return;
+   
+    chatResponse.innerHTML = '<div class="loading">Processing command...</div>';
+    chatInput.value = '';
+   
+    try {
+        const response = await interpretCommand(command);
+        executeCommands(response);
+    } catch (error) {
+        chatResponse.innerHTML = `<div class="error">${error.message}</div>`;
+    }
+}
+
+
+async function interpretCommand(command) {
+    try {
+        const response = await fetch(OPENROUTER_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                'HTTP-Referer': window.location.href,
+                'X-Title': 'Device Control Panel'
+            },
+            body: JSON.stringify({
+                model: MODEL_NAME,
+                messages: [{
+                    role: "system",
+                    content: `You are a device control command interpreter. Available users: prateek, vikram, divya.
+                    Respond with JSON format:
+                    {
+                      "commands": [{
+                      "person": "prateek|vikram|divya",
+                      "device": "camera|mic|bluetooth|wifi",
+                      "action": "turn on|turn off",
+                      "valid": boolean
+                    }],
+                      "invalid_users": ["name"],
+                      "is_command": boolean,  // Add this new field
+                      "message": "summary"
+                    }
+                    RULES:
+                    1. Set "valid": false for unknown users
+                    2. NEVER default to 'all' users
+                    3. Only execute commands where "valid": true
+                    4. Set "is_command": false if the input is not a device control command
+                    5. When "is_command": false, return empty commands array and explain why in message`
+                }, {
+                    role: "user",
+                    content: command
+                }],
+                temperature: 0.1,
+                response_format: { type: "json_object" }
+            })
+        });
+
+
+        const data = await response.json();
+        const content = data.choices[0].message.content;
+        const jsonResponse = JSON.parse(content.replace(/```json|```/g, ''));
+
+        if (jsonResponse.is_command === false) {
+            return {
+                commands: [],
+                invalidUsers: [],
+                is_command: false,
+                message: jsonResponse.message || "Input was not a device control command"
+            };
+        }
+
+        const validCommands = jsonResponse.commands.filter(cmd =>
+            cmd.valid !== false &&
+            ['prateek', 'vikram', 'divya'].includes(cmd.person)
+        );
+
+
+        return {
+            commands: validCommands,
+            invalidUsers: jsonResponse.invalid_users || [],
+            message: jsonResponse.message || "Command processed"
+        };
+
+
+    } catch (error) {
+        console.error("Interpretation error:", error);
+        throw new Error("Command processing failed. Please try again.");
+    }
+}
+
+
+function executeCommands(response) {
+    let resultHtml = '';
+
+    if (response.is_command === false) {
+        resultHtml += `<div class="error">${response.message || "That doesn't appear to be a device control command"}</div>`;
+        chatResponse.innerHTML = resultHtml;
+        return;
+    }
+
+
+    response.commands.forEach(cmd => {
+        const card = document.querySelector(`.person-card[data-name="${cmd.person}"]`);
+        if (card) {
+            const toggle = card.querySelector(`.toggle-switch input[data-device="${cmd.device}"]`);
+            if (toggle) {
+                toggle.checked = cmd.action.includes('on');
+                toggle.dispatchEvent(new Event('change'));
+            }
+        }
+    });
+
+
+  
+   
+    if (response.commands.length > 0) {
+        resultHtml += `<div class="success">${response.message || "Command executed"}</div>`;
+        resultHtml += `<ul>${response.commands.map(cmd =>
+            `<li>${cmd.action} ${cmd.device} for ${cmd.person}</li>`
+        ).join('')}</ul>`;
+    } else if (response.invalidUsers.length === 0) {
+        resultHtml += `<div class="error">No valid command specified</div>`;
+    }
+
+    chatResponse.innerHTML = resultHtml;
+}
+       
+        function updateDeviceStatus(person, device, isOn) {
+            console.log(`Updated ${person}'s ${device} to ${isOn ? 'ON' : 'OFF'}`);
+        }
+       
+        function updateStatusIndicator(person) {
+            const personCard = document.querySelector(`.person-card[data-name="${person}"]`);
+            if (!personCard) return;
+           
+            const toggles = personCard.querySelectorAll('.toggle-switch input');
+            let allOn = true;
+            let allOff = true;
+           
+            toggles.forEach(toggle => {
+                if (toggle.checked) {
+                    allOff = false;
+                } else {
+                    allOn = false;
+                }
+            });
+           
+            const statusIndicator = document.getElementById(`${person}-status`);
+            if (allOn) {
+                statusIndicator.className = 'status-indicator status-on';
+            } else if (allOff) {
+                statusIndicator.className = 'status-indicator status-off';
+            } else {
+                statusIndicator.className = 'status-indicator status-on';
+            }
+        }
+    </script>
+</body>
+</html>
