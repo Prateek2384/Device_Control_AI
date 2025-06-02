@@ -2,7 +2,7 @@
 
 A natural language interface for controlling devices (camera, mic, bluetooth, wifi) for specific users (Prateek, Vikram, Divya) through voice commands.
 
-![Demo Screenshot](Screenshot2.png) *(Replace with actual screenshot)*
+![Demo Screenshot](Screenshot2.png) 
 
 ## Features
 
